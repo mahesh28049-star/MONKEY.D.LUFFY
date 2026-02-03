@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conquer the New Power</title>
+    <style>
+        :root {
+            --dark-bg: #0a0a1a;
+            --system-purple: #8a2be2;
+            --system-red: #ff0000;
+            --system-green: #00ff00;
+            --system-blue: #0000ff;
+            --system-yellow: #ffff00;
+            --text-glow: 0 0 10px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background: var(--dark-bg);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--system-purple);
+        }
+        
+        .app-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            text-shadow: var(--text-glow) var(--system-purple);
+            margin-bottom: 10px;
+        }
+        
+        .system-status {
+            display: inline-block;
+            padding: 5px 15px;
+            background: black;
+            border: 1px solid var(--system-purple);
+            color: var(--system-purple);
+            font-size: 14px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Day Info */
+        .day-info {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(138, 43, 226, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid var(--system-purple);
+        }
+        
+        .rank-display {
+            text-align: center;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 2px solid currentColor;
+        }
+        
+        .rank-e { color: #808080; }
+        .rank-d { color: #1E90FF; }
+        .rank-c { color: #32CD32; }
+        .rank-b { color: #FFD700; }
+        .rank-a { color: #FF4500; }
+        .rank-s { color: #8A2BE2; }
+        
+        /* Progress Ring */
+        .progress-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 30px;
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-bg {
+            fill: none;
+            stroke: rgba(255,255,255,0.1);
+            stroke-width: 15;
+        }
+        
+        .progress-segment {
+            fill: none;
+            stroke-width: 15;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s;
+        }
+        
+        .segment-1 { stroke: var(--system-red); }
+        .segment-2 { stroke: var(--system-green); }
+        .segment-3 { stroke: var(--system-blue); }
+        .segment-4 { stroke: var(--system-yellow); }
+        
+        .progress-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        /* Tasks */
+        .task-list {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        
+        .task-controls button {
+            padding: 5px 12px;
+            margin-left: 5px;
+            background: var(--system-purple);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .task-controls button:hover {
+            opacity: 0.8;
+        }
+        
+        /* Timer */
+        .timer {
+            background: rgba(255,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid var(--system-red);
+        }
+        
+        .time-remaining {
+            font-size: 32px;
+            font-family: monospace;
+            color: var(--system-red);
+            margin: 10px 0;
+        }
+        
+        /* AI Terminal */
+        .ai-terminal {
+            background: black;
+            border: 2px solid var(--system-purple);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            min-height: 150px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .system-message {
+            color: var(--system-purple);
+            margin-bottom: 10px;
+        }
+        
+        .user-message {
+            color: white;
+            margin-bottom: 10px;
+            text-align: right;
+        }
+        
+        /* Buttons */
+        .complete-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--system-purple), #4b0082);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .complete-btn:hover {
+            background: linear-gradient(45deg, #9b30ff, #5a009c);
+        }
+        
+        .penalty-warning {
+            background: rgba(255,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--system-red);
+            display: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 500px) {
+            .app-container {
+                padding: 10px;
+            }
+            
+            .progress-container {
+                width: 200px;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="app-title">CONQUER THE NEW POWER</div>
+            <div class="system-status">SYSTEM ACTIVE</div>
+        </div>
+        
+        <!-- Day and Rank Info -->
+        <div class="day-info">
+            <div>
+                <div style="color: #888;">DAY</div>
+                <div id="dayNumber" style="font-size: 28px; font-weight: bold;">1</div>
+                <div>/100</div>
+            </div>
+            <div>
+                <div style="color: #888;">STREAK</div>
+                <div id="streak" style="font-size: 28px; font-weight: bold;">0</div>
+                <div>days</div>
+            </div>
+            <div>
+                <div style="color: #888;">RANK</div>
+                <div id="rankLetter" style="font-size: 28px; font-weight: bold;">E</div>
+                <div id="rankDays">1-15</div>
+            </div>
+        </div>
+        
+        <!-- Rank Display -->
+        <div class="rank-display rank-e" id="rankDisplay">
+            <div style="font-size: 20px; margin-bottom: 5px;">E-RANK</div>
+            <div style="color: #888; font-size: 14px;">Days 1-15</div>
+            <div style="margin-top: 10px;">
+                <div>Progress to next rank:</div>
+                <div style="font-size: 18px;">1/15 days</div>
+            </div>
+        </div>
+        
+        <!-- Timer -->
+        <div class="timer">
+            <div>MISSION TIME REMAINING</div>
+            <div class="time-remaining" id="timer">10:00:00</div>
+            <div>Complete all tasks within limit</div>
+        </div>
+        
+        <!-- Penalty Warning -->
+        <div class="penalty-warning" id="penaltyWarning">
+            ⚠️ SYSTEM WARNING: Incomplete tasks will result in rank point deduction
+        </div>
+        
+        <!-- Progress Ring -->
+        <div class="progress-container">
+            <svg class="progress-ring" width="250" height="250">
+                <circle class="progress-ring-bg" cx="125" cy="125" r="100"></circle>
+                <!-- Push-ups -->
+                <circle class="progress-segment segment-1" cx="125" cy="125" r="100" 
+                        stroke-dasharray="157 628" stroke-dashoffset="0"></circle>
+                <!-- Sit-ups -->
+                <circle class="progress-segment segment-2" cx="125" cy="125" r="100" 
+                        stroke-dasharray="157 628" stroke-dashoffset="157"></circle>
+                <!-- Squats -->
+                <circle class="progress-segment segment-3" cx="125" cy="125" r="100" 
+                        stroke-dasharray="157 628" stroke-dashoffset="314"></circle>
+                <!-- Running -->
+                <circle class="progress-segment segment-4" cx="125" cy="125" r="100" 
+                        stroke-dasharray="157 628" stroke-dashoffset="471"></circle>
+            </svg>
+            <div class="progress-center">
+                <div style="font-size: 24px; font-weight: bold;" id="progressPercent">0%</div>
+                <div style="color: #888; font-size: 14px;">DAILY PROGRESS</div>
+            </div>
+        </div>
+        
+        <!-- Task List -->
+        <div class="task-list">
+            <div style="text-align: center; margin-bottom: 15px; color: var(--system-purple);">
+                DAILY MANDATORY TASKS
+            </div>
+            
+            <!-- Push-ups -->
+            <div class="task-item">
+                <div>
+                    <div style="font-weight: bold;">Push-ups</div>
+                    <div style="color: #888; font-size: 14px;">Target: 100 reps</div>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <div id="pushupsCount" style="margin-right: 15px; font-size: 24px;">0</div>
+                    <div class="task-controls">
+                        <button onclick="updateTask('pushups', -10)">-10</button>
+                        <button onclick="updateTask('pushups', 10)">+10</button>
+                        <button onclick="completeTask('pushups')" style="background: var(--system-red);">✓</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sit-ups -->
+            <div class="task-item">
+                <div>
+                    <div style="font-weight: bold;">Sit-ups</div>
+                    <div style="color: #888; font-size: 14px;">Target: 100 reps</div>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <div id="situpsCount" style="margin-right: 15px; font-size: 24px;">0</div>
+                    <div class="task-controls">
+                        <button onclick="updateTask('situps', -10)">-10</button>
+                        <button onclick="updateTask('situps', 10)">+10</button>
+                        <button onclick="completeTask('situps')" style="background: var(--system-green);">✓</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Squats -->
+            <div class="task-item">
+                <div>
+                    <div style="font-weight: bold;">Squats</div>
+                    <div style="color: #888; font-size: 14px;">Target: 100 reps</div>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <div id="squatsCount" style="margin-right: 15px; font-size: 24px;">0</div>
+                    <div class="task-controls">
+                        <button onclick="updateTask('squats', -10)">-10</button>
+                        <button onclick="updateTask('squats', 10)">+10</button>
+                        <button onclick="completeTask('squats')" style="background: var(--system-blue);">✓</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Running -->
+            <div class="task-item">
+                <div>
+                    <div style="font-weight: bold;">Running</div>
+                    <div style="color: #888; font-size: 14px;">Target: 5 km</div>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <div id="runningCount" style="margin-right: 15px; font-size: 24px;">0</div>
+                    <div class="task-controls">
+                        <button onclick="updateTask('running', -1)">-1</button>
+                        <button onclick="updateTask('running', 1)">+1</button>
+                        <button onclick="completeTask('running')" style="background: var(--system-yellow); color: black;">✓</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Complete Day Button -->
+        <button class="complete-btn" onclick="completeDay()" id="completeBtn">
+            COMPLETE DAY 1
+        </button>
+        
+        <!-- AI Terminal -->
+        <div class="ai-terminal" id="terminal">
+            <div class="system-message">SYSTEM: Day 1 initialized. Complete all missions within 10 hours.</div>
+            <div class="system-message">SYSTEM: Current time: <span id="currentTime"></span></div>
+            <div class="system-message">SYSTEM: Remaining tasks: 4/4 incomplete</div>
+        </div>
+        
+        <!-- Navigation -->
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button onclick="showScreen('dashboard')" style="flex: 1; padding: 10px; background: var(--system-purple); color: white; border: none; border-radius: 5px;">Dashboard</button>
+            <button onclick="showScreen('stats')" style="flex: 1; padding: 10px; background: rgba(138,43,226,0.5); color: white; border: none; border-radius: 5px;">Stats</button>
+            <button onclick="showScreen('ranks')" style="flex: 1; padding: 10px; background: rgba(138,43,226,0.5); color: white; border: none; border-radius: 5px;">Ranks</button>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        let appState = {
+            day: 1,
+            rank: 'E',
+            streak: 0,
+            tasks: {
+                pushups: { current: 0, target: 100, completed: false },
+                situps: { current: 0, target: 100, completed: false },
+                squats: { current: 0, target: 100, completed: false },
+                running: { current: 0, target: 5, completed: false }
+            },
+            startTime: new Date(),
+            timeLimit: 10 * 60 * 60 * 1000, // 10 hours in milliseconds
+            systemMessages: [
+                "Arise. The System is watching.",
+                "Weakness is a choice.",
+                "Surpass your limits. Right here. Right now.",
+                "The strong do what they must. The weak suffer what they must.",
+                "Every rep brings you closer to S-Rank.",
+                "Discipline is choosing between what you want now and what you want most.",
+                "The System rewards only consistency.",
+                "Failure is not an option. It's a penalty.",
+                "You are not training your body. You are forging your will.",
+                "E-Rank today. S-Rank in 100 days."
+            ]
+        };
+
+        // DOM Elements
+        const elements = {
+            dayNumber: document.getElementById('dayNumber'),
+            streak: document.getElementById('streak'),
+            rankLetter: document.getElementById('rankLetter'),
+            rankDays: document.getElementById('rankDays'),
+            rankDisplay: document.getElementById('rankDisplay'),
+            timer: document.getElementById('timer'),
+            progressPercent: document.getElementById('progressPercent'),
+            pushupsCount: document.getElementById('pushupsCount'),
+            situpsCount: document.getElementById('situpsCount'),
+            squatsCount: document.getElementById('squatsCount'),
+            runningCount: document.getElementById('runningCount'),
+            terminal: document.getElementById('terminal'),
+            currentTime: document.getElementById('currentTime'),
+            penaltyWarning: document.getElementById('penaltyWarning'),
+            completeBtn: document.getElementById('completeBtn')
+        };
+
+        // Initialize
+        function init() {
+            updateDisplay();
+            startTimer();
+            updateTime();
+            setInterval(updateTime, 60000); // Update every minute
+            addSystemMessage("SYSTEM: Welcome to Conquer the New Power. Your transformation begins now.");
+        }
+
+        // Update all displays
+        function updateDisplay() {
+            // Update day and rank
+            elements.dayNumber.textContent = appState.day;
+            elements.streak.textContent = appState.streak;
+            elements.rankLetter.textContent = appState.rank;
+            
+            // Update rank display based on current rank
+            updateRankDisplay();
+            
+            // Update task counts
+            elements.pushupsCount.textContent = appState.tasks.pushups.current;
+            elements.situpsCount.textContent = appState.tasks.situps.current;
+            elements.squatsCount.textContent = appState.tasks.squats.current;
+            elements.runningCount.textContent = appState.tasks.running.current;
+            
+            // Update progress
+            updateProgressRing();
+            
+            // Check if any task is started but incomplete
+            checkPenaltyWarning();
+            
+            // Update complete button
+            updateCompleteButton();
+        }
+
+        // Update rank display styling
+        function updateRankDisplay() {
+            const rank = appState.rank;
+            const rankDisplay = elements.rankDisplay;
+            
+            // Remove all rank classes
+            rankDisplay.className = 'rank-display';
+            
+            // Add current rank class
+            rankDisplay.classList.add(`rank-${rank.toLowerCase()}`);
+            
+            // Update rank days range
+            let daysRange = '';
+            switch(rank) {
+                case 'E': daysRange = 'Days 1-15'; break;
+                case 'D': daysRange = 'Days 16-30'; break;
+                case 'C': daysRange = 'Days 31-50'; break;
+                case 'B': daysRange = 'Days 51-70'; break;
+                case 'A': daysRange = 'Days 71-90'; break;
+                case 'S': daysRange = 'Days 91-100'; break;
+            }
+            elements.rankDays.textContent = daysRange;
+            
+            // Update rank title
+            rankDisplay.querySelector('div').textContent = `${rank}-RANK`;
+        }
+
+        // Update progress ring
+        function updateProgressRing() {
+            const totalTasks = 4;
+            let completedTasks = 0;
+            
+            // Check completed tasks
+            if (appState.tasks.pushups.current >= appState.tasks.pushups.target) completedTasks++;
+            if (appState.tasks.situps.current >= appState.tasks.situps.target) completedTasks++;
+            if (appState.tasks.squats.current >= appState.tasks.squats.target) completedTasks++;
+            if (appState.tasks.running.current >= appState.tasks.running.target) completedTasks++;
+            
+            const progress = (completedTasks / totalTasks) * 100;
+            elements.progressPercent.textContent = `${Math.round(progress)}%`;
+            
+            // Update segments
+            const segments = document.querySelectorAll('.progress-segment');
+            segments.forEach(segment => {
+                const circumference = 628; // 2 * π * r
+                const offset = circumference - (circumference * (progress / 100));
+                segment.style.strokeDashoffset = offset;
+            });
+        }
+
+        // Update task counts
+        function updateTask(task, amount) {
+            if (task === 'running') {
+                appState.tasks.running.current = Math.max(0, appState.tasks.running.current + amount);
+            } else {
+                appState.tasks[task].current = Math.max(0, appState.tasks[task].current + amount);
+            }
+            
+            updateDisplay();
+            
+            // Check if task is completed
+            if (task === 'running') {
+                if (appState.tasks.running.current >= appState.tasks.running.target && !appState.tasks.running.completed) {
+                    appState.tasks.running.completed = true;
+                    addSystemMessage(`SYSTEM: Running completed. ${appState.tasks.running.current}km logged.`);
+                }
+            } else if (appState.tasks[task].current >= appState.tasks[task].target && !appState.tasks[task].completed) {
+                appState.tasks[task].completed = true;
+                addSystemMessage(`SYSTEM: ${task.charAt(0).toUpperCase() + task.slice(1)} completed. Good.`);
+            }
+        }
+
+        // Complete task instantly
+        function completeTask(task) {
+            if (task === 'running') {
+                appState.tasks.running.current = appState.tasks.running.target;
+                appState.tasks.running.completed = true;
+            } else {
+                appState.tasks[task].current = appState.tasks[task].target;
+                appState.tasks[task].completed = true;
+            }
+            
+            updateDisplay();
+            addSystemMessage(`SYSTEM: ${task.charAt(0).toUpperCase() + task.slice(1)} task completed. Proceed to next.`);
+        }
+
+        // Timer functions
+        function startTimer() {
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            const now = new Date();
+            const elapsed = now - appState.startTime;
+            const remaining = appState.timeLimit - elapsed;
+            
+            if (remaining <= 0) {
+                elements.timer.textContent = "00:00:00";
+                addSystemMessage("SYSTEM WARNING: Time limit exceeded. Mission failed.");
+                showPenalty();
+                return;
+            }
+            
+            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+            
+            elements.timer.textContent = 
+                `${hours.toString().padStart(2, '0')}:` +
+                `${minutes.toString().padStart(2, '0')}:` +
+                `${seconds.toString().padStart(2, '0')}`;
+            
+            // Add warnings
+            if (hours === 0 && minutes <= 30) {
+                elements.timer.style.color = '#ff0000';
+                if (minutes === 30 && seconds === 0) {
+                    addSystemMessage("SYSTEM WARNING: 30 minutes remaining. Complete tasks immediately.");
+                }
+            }
+        }
+
+        // Complete day
+        function completeDay() {
+            // Check if all tasks are completed
+            const allCompleted = 
+                appState.tasks.pushups.current >= appState.tasks.pushups.target &&
+                appState.tasks.situps.current >= appState.tasks.situps.target &&
+                appState.tasks.squats.current >= appState.tasks.squats.target &&
+                appState.tasks.running.current >= appState.tasks.running.target;
+            
+            if (!allCompleted) {
+                addSystemMessage("SYSTEM ERROR: Not all tasks completed. Continue training.");
+                showPenalty();
+                return;
+            }
+            
+            // Day completed successfully
+            appState.day++;
+            appState.streak++;
+            
+            // Check for rank promotion
+            checkRankPromotion();
+            
+            // Reset tasks for next day
+            resetTasks();
+            
+            // Reset timer
+            appState.startTime = new Date();
+            
+            // Add success message
+            addSystemMessage("SYSTEM: Day completed successfully. Rank points increased.");
+            addSystemMessage(getRandomMotivation());
+            
+            // Show completion animation
+            showCompletionAnimation();
+            
+            updateDisplay();
+        }
+
+        // Check rank promotion
+        function checkRankPromotion() {
+            const rankDays = {
+                'E': 15, 'D': 15, 'C': 20, 'B': 20, 'A': 20, 'S': 10
+            };
+            
+            const ranks = ['E', 'D', 'C', 'B', 'A', 'S'];
+            const currentIndex = ranks.indexOf(appState.rank);
+            
+            if (currentIndex < ranks.length - 1) {
+                // Check if enough days in current rank
+                const daysInRank = appState.day - getStartDayForRank(appState.rank);
+                if (daysInRank >= rankDays[appState.rank]) {
+                    appState.rank = ranks[currentIndex + 1];
+                    addSystemMessage(`SYSTEM: RANK UPGRADED to ${appState.rank}-Rank.`);
+                }
+            }
+        }
+
+        function getStartDayForRank(rank) {
+            switch(rank) {
+                case 'E': return 1;
+                case 'D': return 16;
+                case 'C': return 31;
+                case 'B': return 51;
+                case 'A': return 71;
+                case 'S': return 91;
+                default: return 1;
+            }
+        }
+
+        // Reset tasks for new day
+        function resetTasks() {
+            appState.tasks = {
+                pushups: { current: 0, target: 100, completed: false },
+                situps: { current: 0, target: 100, completed: false },
+                squats: { current: 0, target: 100, completed: false },
+                running: { current: 0, target: 5, completed: false }
+            };
+        }
+
+        // Penalty system
+        function showPenalty() {
+            elements.penaltyWarning.style.display = 'block';
+            
+            // Simulate rank point deduction
+            addSystemMessage("SYSTEM PENALTY: Rank points deducted for incomplete day.");
+            
+            // Reset streak
+            appState.streak = 0;
+            updateDisplay();
+        }
+
+        function checkPenaltyWarning() {
+            const anyStarted = 
+                appState.tasks.pushups.current > 0 ||
+                appState.tasks.situps.current > 0 ||
+                appState.tasks.squats.current > 0 ||
+                appState.tasks.running.current > 0;
+            
+            const anyIncomplete = 
+                appState.tasks.pushups.current < appState.tasks.pushups.target ||
+                appState.tasks.situps.current < appState.tasks.situps.target ||
+                appState.tasks.squats.current < appState.tasks.squats.target ||
+                appState.tasks.running.current < appState.tasks.running.target;
+            
+            if (anyStarted && anyIncomplete) {
+                elements.penaltyWarning.style.display = 'block';
+            }
+        }
+
+        // System messages
+        function addSystemMessage(message) {
+            const msgElement = document.createElement('div');
+            msgElement.className = 'system-message';
+            msgElement.textContent = message;
+            elements.terminal.appendChild(msgElement);
+            elements.terminal.scrollTop = elements.terminal.scrollHeight;
+        }
+
+        function getRandomMotivation() {
+            const randomIndex = Math.floor(Math.random() * appState.systemMessages.length);
+            return `SYSTEM: "${appState.systemMessages[randomIndex]}"`;
+        }
+
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            elements.currentTime.textContent = now.toLocaleTimeString();
+        }
+
+        // Update complete button text
+        function updateCompleteButton() {
+            elements.completeBtn.textContent = `COMPLETE DAY ${appState.day}`;
+        }
+
+        // Show completion animation
+        function showCompletionAnimation() {
+            const originalColor = document.body.style.backgroundColor;
+            document.body.style.backgroundColor = '#32CD32';
+            setTimeout(() => {
+                document.body.style.backgroundColor = originalColor;
+            }, 500);
+        }
+
+        // Screen navigation
+        function showScreen(screen) {
+            alert(`${screen.toUpperCase()} screen would show here in full app.`);
+            if (screen === 'stats') {
+                addSystemMessage("SYSTEM: Accessing user statistics...");
+            } else if (screen === 'ranks') {
+                addSystemMessage("SYSTEM: Displaying rank progression ladder...");
+            }
+        }
+
+        // Initialize the app
+        window.onload = init;
+    </script>
+</body>
+</html>
